@@ -27,6 +27,19 @@
         .paper p {
             margin-bottom: 10px;
         }
+        .button {
+            display: inline-block;
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
     </style>
     <script>
         async function fetchPaperDetails() {
@@ -48,6 +61,7 @@
                     <p><strong>Title:</strong> {{ engineer_paper.title }}</p>
                     <p><strong>Summary:</strong> {{ engineer_paper.summary }}</p>
                     <p><strong>Authors:</strong> {{ engineer_paper.authors | join(', ') }}</p>
+                    <a href="{{ engineer_paper.link }}" class="button" target="_blank">Download Paper</a>
                 </div>
             {% endif %}
             {% if ethicist_paper %}
@@ -56,6 +70,7 @@
                     <p><strong>Title:</strong> {{ ethicist_paper.title }}</p>
                     <p><strong>Summary:</strong> {{ ethicist_paper.summary }}</p>
                     <p><strong>Authors:</strong> {{ ethicist_paper.authors | join(', ') }}</p>
+                    <a href="{{ ethicist_paper.link }}" class="button" target="_blank">Download Paper</a>
                 </div>
             {% endif %}
             {% if policymaker_paper %}
@@ -64,6 +79,7 @@
                     <p><strong>Title:</strong> {{ policymaker_paper.title }}</p>
                     <p><strong>Summary:</strong> {{ policymaker_paper.summary }}</p>
                     <p><strong>Authors:</strong> {{ policymaker_paper.authors | join(', ') }}</p>
+                    <a href="{{ policymaker_paper.link }}" class="button" target="_blank">Download Paper</a>
                 </div>
             {% endif %}
         </div>

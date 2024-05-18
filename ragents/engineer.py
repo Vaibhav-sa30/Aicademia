@@ -13,7 +13,7 @@ SEED_PHRASE = "Responsible AI Seed Phrase"
 
 
 # More specific search query for Responsible AI
-search_query = "transformers"
+search_query = "AI Safety Algorithms Responsible AI Tool and Techniques"
 encoded_query = urllib.parse.quote(search_query)
 base_url = 'http://export.arxiv.org/api/query?search_query=all:'
 start_index = 0  # Starting index for fetching papers
@@ -38,11 +38,23 @@ async def eng_papers():
                         paper_summary = entry.find('{http://www.w3.org/2005/Atom}summary').text.strip()  # Remove leading/trailing whitespace
                         authors = [author.find('{http://www.w3.org/2005/Atom}name').text for author in entry.findall('{http://www.w3.org/2005/Atom}author')]
                         
+
+                         # Find the link with type="application/pdf"
+                        pdf_link_element = entry.find('{http://www.w3.org/2005/Atom}link[@type="application/pdf"]')
+
+                        # Extract the href attribute value if the link element is found
+                        if pdf_link_element is not None:
+                            paper_link = pdf_link_element.attrib.get('href')
+                        else:
+                            # If PDF link is not found, set paper_link to None or handle the case accordingly
+                            paper_link = None
+
                         # Prepare the extracted information
                         paper_details = {
                             "title": paper_title,
                             "summary": paper_summary,
-                            "authors": authors
+                            "authors": authors,
+                            "link": paper_link
                         }
                     else:
                         paper_details = None
