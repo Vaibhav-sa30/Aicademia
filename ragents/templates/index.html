@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paper Details</title>
+    <script>
+        async function fetchPaperDetails() {
+            const response = await fetch('/');
+            const text = await response.text();
+            document.getElementById('paper-details').innerHTML = text;
+        }
+
+        setInterval(fetchPaperDetails, 5000);  // Fetch new paper details every 5 seconds
+    </script>
+</head>
+<body onload="fetchPaperDetails()">
+    <h1>Paper Details</h1>
+    <div id="paper-details">
+        {% if paper %}
+            <h2>{{ paper.title }}</h2>
+            <p><strong>Summary:</strong> {{ paper.summary }}</p>
+            <p><strong>Authors:</strong> {{ paper.authors | join(', ') }}</p>
+        {% else %}
+            <p>No paper details available.</p>
+        {% endif %}
+    </div>
+</body>
+</html>

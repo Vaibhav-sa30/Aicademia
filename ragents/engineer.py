@@ -11,21 +11,17 @@ logging.basicConfig(level=logging.WARNING)
 ENGINEER = "Responsible AI Engineer Agent"
 SEED_PHRASE = "Responsible AI Seed Phrase"
 
+
 # More specific search query for Responsible AI
 search_query = "transformers"
 encoded_query = urllib.parse.quote(search_query)
-
-print(f'We are searching for {encoded_query} query')
-
 base_url = 'http://export.arxiv.org/api/query?search_query=all:'
 start_index = 0  # Starting index for fetching papers
 max_results = 1  # Number of papers to fetch at a time
 
-engineer = Agent(name=ENGINEER, seed=SEED_PHRASE)
-
-@engineer.on_interval(period=5)
-async def fetch_paper(ctx: Context):
-    global start_index  # Declare as global to modify the value
+# Function to fetch paper details
+async def fetch_paper():
+    global start_index
     try:
         url = f'{base_url}{encoded_query}&start={start_index}&max_results={max_results}'
         async with aiohttp.ClientSession() as session:
@@ -42,61 +38,23 @@ async def fetch_paper(ctx: Context):
                         paper_summary = entry.find('{http://www.w3.org/2005/Atom}summary').text.strip()  # Remove leading/trailing whitespace
                         authors = [author.find('{http://www.w3.org/2005/Atom}name').text for author in entry.findall('{http://www.w3.org/2005/Atom}author')]
                         
-                        # Print the extracted information
-                        print(f"Title: {paper_title}")
-                        print(f"Summary: {paper_summary}")
-                        print(f"Authors: {', '.join(authors)}")
+                        # Prepare the extracted information
+                        paper_details = {
+                            "title": paper_title,
+                            "summary": paper_summary,
+                            "authors": authors
+                        }
                     else:
-                        print("No 'entry' element found in the response. Paper details unavailable.")
+                        paper_details = None
+
                 except ET.ParseError:
                     logging.error("Error parsing XML data", exc_info=True)
+                    paper_details = None
         
         # Increment the start index to fetch the next paper in the next call
         start_index += 1
+        return paper_details
 
     except aiohttp.ClientError:
         logging.error("Error fetching data", exc_info=True)
-
-if __name__ == "__main__":
-    asyncio.run(engineer.run())
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-'''
-# Retry logic with a short delay (adjust as needed)
-max_retries = 3
-for attempt in range(1, max_retries + 1):
-  try:
-    response = requests.get(url)
-    response.raise_for_status()  # Raise an exception for unsuccessful responses (200+)
-    data = response.json()
-
-    # Extract relevant information from the data (e.g., first paper's title)
-    if data['totalResults'] > 0:
-        first_paper_title = data['entries'][0]['title']
-        print(f"Found paper: {first_paper_title}")
-        break  # Exit the loop on successful retrieval
-    else:
-        print("No papers found matching the search criteria.")
-        break  # Exit the loop on no results
-
-  except requests.exceptions.RequestException as e:
-    print(f"An error occurred during the API request (attempt {attempt}/{max_retries}): {e}")
-    if attempt == max_retries:
-        print("Maximum retries reached. Giving up.")
-
-
-'''
+        return None
