@@ -1,26 +1,19 @@
-from uagents import Agent, Context
 import urllib.parse
 import aiohttp  # Asynchronous HTTP requests
 import xml.etree.ElementTree as ET
-import asyncio
 import logging
 
-# Configure logging to show only warnings and errors
 logging.basicConfig(level=logging.WARNING)
 
-ENGINEER = "Responsible AI Engineer Agent"
-SEED_PHRASE = "Responsible AI Seed Phrase"
-
-
-# More specific search query for Responsible AI
-search_query = "transformers"
+# Search query for Responsible AI ethics, societal, and philosophical impacts
+search_query = "responsible AI ethics societal philosophical"
 encoded_query = urllib.parse.quote(search_query)
 base_url = 'http://export.arxiv.org/api/query?search_query=all:'
 start_index = 0  # Starting index for fetching papers
 max_results = 1  # Number of papers to fetch at a time
 
 # Function to fetch paper details
-async def eng_papers():
+async def pol_papers():
     global start_index
     try:
         url = f'{base_url}{encoded_query}&start={start_index}&max_results={max_results}'
@@ -50,8 +43,8 @@ async def eng_papers():
                 except ET.ParseError:
                     logging.error("Error parsing XML data", exc_info=True)
                     paper_details = None
-        
-        # Increment the start index to fetch the next paper in the next call
+           
+           # Increment the start index to fetch the next paper in the next call
         start_index += 1
         return paper_details
 

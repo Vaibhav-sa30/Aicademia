@@ -3,7 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Paper Details</title>
+    <title>Responsible AI Hub</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            padding: 20px;
+        }
+        .paper {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .paper h2 {
+            margin-top: 0;
+        }
+        .paper p {
+            margin-bottom: 10px;
+        }
+    </style>
     <script>
         async function fetchPaperDetails() {
             const response = await fetch('/');
@@ -15,15 +39,34 @@
     </script>
 </head>
 <body onload="fetchPaperDetails()">
-    <h1>Paper Details</h1>
-    <div id="paper-details">
-        {% if paper %}
-            <h2>{{ paper.title }}</h2>
-            <p><strong>Summary:</strong> {{ paper.summary }}</p>
-            <p><strong>Authors:</strong> {{ paper.authors | join(', ') }}</p>
-        {% else %}
-            <p>No paper details available.</p>
-        {% endif %}
+    <div class="container">
+        <h1>Responsible AI Hub</h1>
+        <div id="paper-details">
+            {% if engineer_paper %}
+                <div class="paper">
+                    <h2>Engineer Paper</h2>
+                    <p><strong>Title:</strong> {{ engineer_paper.title }}</p>
+                    <p><strong>Summary:</strong> {{ engineer_paper.summary }}</p>
+                    <p><strong>Authors:</strong> {{ engineer_paper.authors | join(', ') }}</p>
+                </div>
+            {% endif %}
+            {% if ethicist_paper %}
+                <div class="paper">
+                    <h2>Ethicist Paper</h2>
+                    <p><strong>Title:</strong> {{ ethicist_paper.title }}</p>
+                    <p><strong>Summary:</strong> {{ ethicist_paper.summary }}</p>
+                    <p><strong>Authors:</strong> {{ ethicist_paper.authors | join(', ') }}</p>
+                </div>
+            {% endif %}
+            {% if policymaker_paper %}
+                <div class="paper">
+                    <h2>PolicyMaker Paper</h2>
+                    <p><strong>Title:</strong> {{ policymaker_paper.title }}</p>
+                    <p><strong>Summary:</strong> {{ policymaker_paper.summary }}</p>
+                    <p><strong>Authors:</strong> {{ policymaker_paper.authors | join(', ') }}</p>
+                </div>
+            {% endif %}
+        </div>
     </div>
 </body>
 </html>
