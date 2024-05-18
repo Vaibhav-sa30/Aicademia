@@ -17,13 +17,17 @@ encoded_query = urllib.parse.quote(search_query)
 
 print(f'We are searching for {encoded_query} query')
 
-url = f'http://export.arxiv.org/api/query?search_query=all:{encoded_query}&start=0&max_results=1'
+base_url = 'http://export.arxiv.org/api/query?search_query=all:'
+start_index = 0  # Starting index for fetching papers
+max_results = 1  # Number of papers to fetch at a time
 
 engineer = Agent(name=ENGINEER, seed=SEED_PHRASE)
 
 @engineer.on_interval(period=5)
 async def fetch_paper(ctx: Context):
+    global start_index  # Declare as global to modify the value
     try:
+        url = f'{base_url}{encoded_query}&start={start_index}&max_results={max_results}'
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as response:
                 data = await response.text()
@@ -46,12 +50,16 @@ async def fetch_paper(ctx: Context):
                         print("No 'entry' element found in the response. Paper details unavailable.")
                 except ET.ParseError:
                     logging.error("Error parsing XML data", exc_info=True)
+        
+        # Increment the start index to fetch the next paper in the next call
+        start_index += 1
 
     except aiohttp.ClientError:
         logging.error("Error fetching data", exc_info=True)
 
 if __name__ == "__main__":
     asyncio.run(engineer.run())
+
 
 
 
