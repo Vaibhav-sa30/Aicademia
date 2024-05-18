@@ -1,6 +1,12 @@
 from uagents import Agent, Context
-import urllib, urllib.request
-import requests  # Library for making API requests
+import urllib.parse
+import aiohttp  # Asynchronous HTTP requests
+import xml.etree.ElementTree as ET
+import asyncio
+import logging
+
+# Configure logging to show only warnings and errors
+logging.basicConfig(level=logging.WARNING)
 
 ENGINEER = "Responsible AI Engineer Agent"
 SEED_PHRASE = "Responsible AI Seed Phrase"
@@ -9,14 +15,54 @@ SEED_PHRASE = "Responsible AI Seed Phrase"
 search_query = "transformers"
 encoded_query = urllib.parse.quote(search_query)
 
-print(encoded_query)
+print(f'We are searching for {encoded_query} query')
 
-url = f'http://export.arxiv.org/api/query?search_query=all:{encoded_query}&start=0&max_results=2'
+url = f'http://export.arxiv.org/api/query?search_query=all:{encoded_query}&start=0&max_results=1'
 
 engineer = Agent(name=ENGINEER, seed=SEED_PHRASE)
 
-data = urllib.request.urlopen(url)
-print(data.read().decode('utf-8'))
+@engineer.on_interval(period=5)
+async def fetch_paper(ctx: Context):
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                data = await response.text()
+                
+                try:
+                    root = ET.fromstring(data)
+                    entry = root.find('{http://www.w3.org/2005/Atom}entry')
+
+                    if entry is not None:
+                        # Extract title, summary, and author(s)
+                        paper_title = entry.find('{http://www.w3.org/2005/Atom}title').text
+                        paper_summary = entry.find('{http://www.w3.org/2005/Atom}summary').text.strip()  # Remove leading/trailing whitespace
+                        authors = [author.find('{http://www.w3.org/2005/Atom}name').text for author in entry.findall('{http://www.w3.org/2005/Atom}author')]
+                        
+                        # Print the extracted information
+                        print(f"Title: {paper_title}")
+                        print(f"Summary: {paper_summary}")
+                        print(f"Authors: {', '.join(authors)}")
+                    else:
+                        print("No 'entry' element found in the response. Paper details unavailable.")
+                except ET.ParseError:
+                    logging.error("Error parsing XML data", exc_info=True)
+
+    except aiohttp.ClientError:
+        logging.error("Error fetching data", exc_info=True)
+
+if __name__ == "__main__":
+    asyncio.run(engineer.run())
+
+
+
+
+
+
+
+
+
+
+
 
 
 
